@@ -1,1 +1,1 @@
-# -grafana-lab
+# grafana-lab
