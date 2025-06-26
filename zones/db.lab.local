@@ -1,0 +1,15 @@
+$TTL    604800
+@       IN      SOA     ns1.lab.local. admin.lab.local. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+
+; Nameservers
+        IN      NS      ns1.lab.local.
+
+; A records
+ns1     IN      A       192.168.80.175
+web     IN      A       192.168.80.200
+db      IN      A       192.168.80.201

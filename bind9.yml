@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Service Bind9 pour DNS
+  bind9:
+    image: internetsystemsconsortium/bind9:9.18  # Version stable de Bind9
+    container_name: bind9
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+      - "8053:8053"  # Exposer les stats via HTTP
+    volumes:
+      - ./named.conf:/etc/bind/named.conf
+      - ./zones:/etc/bind/zones
+    restart: unless-stopped
+
+  # Service Python pour exporter les métriques de Bind9
+  bind_exporter:
+    build:
+      context: ./bind_exporter  # Construire l'image Docker à partir du dossier bind_exporter
+    container_name: bind_exporter
+    ports:
+      - "9119:9119"  # Exposer l'exporter sur le port 9119
+    depends_on:
+      - bind9  # Dépend du service bind9
+
+  # Service Prometheus pour la collecte des métriques
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+
+  # Service Grafana pour la visualisation
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    restart: unless-stopped
+
+volumes:
+  grafana-storage:
+

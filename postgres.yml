@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: demo
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+  adminer:
+    image: adminer
+    ports:
+      - 8888:8080
+
+  postgres_exporter:
+    image: prometheuscommunity/postgres-exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://admin:admin123@db:5432/demo?sslmode=disable"
+    ports:
+      - 9187:9187
+    depends_on:
+      - db
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+volumes:
+  pgdata:
+  grafana-data:
